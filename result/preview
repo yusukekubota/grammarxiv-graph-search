@@ -1,0 +1,4 @@
+digraph {
+	node [fixedsize=true width=2]
+	2010400 [shape=doublecircle]
+}
