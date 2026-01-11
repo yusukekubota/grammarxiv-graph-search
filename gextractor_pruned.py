@@ -248,7 +248,7 @@ def format_easy_query(key_names, target_node_type, length):
             + format_node2(target_node_type, "a")
             + " -[*.."
             + str(length)
-            + "] -> "
+            + "] - "
             + format_node(x[1]),
             enumerate(key_names),
         )
