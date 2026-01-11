@@ -109,7 +109,7 @@ to_candidate_types = {
 def load_entry_names():
     """
     Ensures ./result/entry_names.txt exists and returns its lines.
-    If missing, runs: bundle exec ruby ./read_entries.rb
+    If missing, runs: ruby ./read_entries.rb
     """
     file_path = "./result/entry_names.txt"
     directory_path = "./result"
@@ -120,7 +120,7 @@ def load_entry_names():
     if not os.path.exists(file_path):
         try:
             result = subprocess.run(
-                "bundle exec ruby ./read_entries.rb",
+                "ruby ./read_entries.rb",
                 shell=True,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
@@ -323,7 +323,7 @@ def draw_preview_graph(pivot, incoming_rels_df, outgoing_rels_df, graph_fmt):
 
 def get_author_info(author_id: str):
     proc = subprocess.run(
-        f"bundle exec ruby ./getSSauthor_info.rb {author_id}",
+        f"ruby ./getSSauthor_info.rb {author_id}",
         shell=True,
         capture_output=True,
         text=True,
@@ -577,6 +577,6 @@ with easy_query_tab_path:
 get_relation_completion = st.button("補完候補をアップデート")
 
 if get_relation_completion:
-    subprocess.run("bundle exec ruby ./read_entries.rb", shell=True, text=True)
+    subprocess.run("ruby ./read_entries.rb", shell=True, text=True)
 
 
