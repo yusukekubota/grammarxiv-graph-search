@@ -5,10 +5,10 @@ Pruned from the attached gextractor.py:
 - Removes authentication, PDF/bib extraction, DB update utilities, and other UI pages.
 
 Note: This script still expects the same local data files as the original:
-  ../result/entries.tsv
-  ../result/rels.tsv
-  ../result/rels_w_type.tsv
-  ../result/entry_names.txt (auto-generated via ./read_entries.rb if missing)
+  ./result/entries.tsv
+  ./result/rels.tsv
+  ./result/rels_w_type.tsv
+  ./result/entry_names.txt (auto-generated via ./read_entries.rb if missing)
 """
 
 import os
@@ -108,11 +108,11 @@ to_candidate_types = {
 
 def load_entry_names():
     """
-    Ensures ../result/entry_names.txt exists and returns its lines.
+    Ensures ./result/entry_names.txt exists and returns its lines.
     If missing, runs: bundle exec ruby ./read_entries.rb
     """
-    file_path = "../result/entry_names.txt"
-    directory_path = "../result"
+    file_path = "./result/entry_names.txt"
+    directory_path = "./result"
 
     if not os.path.exists(directory_path):
         os.makedirs(directory_path)
@@ -148,17 +148,17 @@ with st.spinner("[load_entry_names] Initializing..."):
 
 @st.cache_data
 def load_relations():
-    return pd.read_csv("../result/rels.tsv", sep="\t")
+    return pd.read_csv("./result/rels.tsv", sep="\t")
 
 
 @st.cache_data
 def load_entries():
-    return pd.read_csv("../result/entries.tsv", sep="\t")
+    return pd.read_csv("./result/entries.tsv", sep="\t")
 
 
 @st.cache_data
 def load_rels_w_type():
-    return pd.read_csv("../result/rels_w_type.tsv", sep="\t").dropna()
+    return pd.read_csv("./result/rels_w_type.tsv", sep="\t").dropna()
 
 
 if "rels_df" not in st.session_state:
@@ -316,8 +316,8 @@ def draw_preview_graph(pivot, incoming_rels_df, outgoing_rels_df, graph_fmt):
             label=str(row["type"]),
         )
 
-    preview_graph.render("../result/preview")
-    image = Image.open("../result/preview.png")
+    preview_graph.render("./result/preview")
+    image = Image.open("./result/preview.png")
     st.image(image)
 
 
