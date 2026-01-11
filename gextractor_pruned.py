@@ -552,7 +552,7 @@ def easy_query_path():
 # 本体 (kept)
 ##############################################################
 
-add_header("グラフ検索")
+st.title('GrammarXivグラフ検索ツール')
 
 (
     easy_query_tab_phen_hyp,
@@ -572,3 +572,11 @@ with easy_query_tab_chain:
     easy_query_chain()
 with easy_query_tab_path:
     easy_query_path()
+
+
+get_relation_completion = st.button("補完候補をアップデート")
+
+if get_relation_completion:
+    subprocess.run("bundle exec ruby ./read_entries.rb", shell=True, text=True)
+
+
