@@ -64,8 +64,11 @@ HypNameSheetURL       = make_url("1826693149")
 FrameworkNameSheetURL = make_url("1723178886")
 TopicNameSheetURL     = make_url("2023287325")
 PubNameSheetURL       = make_url("1194994121")
+DataNameSheetURL       = make_url("2078628721")
 AuthorNameSheetURL    = make_url("296545536")
 RelSheetURL           = make_url("1972451989")
+
+Data_entries = DataNameSheetURL.read_GSheet2os.map { |x| x.type = "data"; x }
 
 Hyp_entries = HypNameSheetURL.read_GSheet2os.map { |x| x.type = "hypothesis"; x }
 
@@ -98,7 +101,7 @@ Author_entries = AuthorNameSheetURL.read_GSheet2os.map do |x|
   x
 end
 
-All_entries = Hyp_entries + Framework_entries + Topic_entries + Pub_entries + Author_entries
+All_entries = Hyp_entries + Framework_entries + Topic_entries + Pub_entries + Author_entries + Data_entries 
 
 id_name_hash = All_entries.map { |x| [x.id, x.name] }.to_h
 

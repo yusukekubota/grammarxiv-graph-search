@@ -254,10 +254,11 @@ def format_easy_query(key_names, target_node_type, length):
         )
     )
     paths_string = ", ".join(paths)
+    condition_string = f'WHERE ALL(r IN relationships(p{str(x[0])}) WHERE (r.variant <> "REFER_TO") AND (r.variant <> "BADGED_VERIFIED"))'
     r_string = ", ".join(
         list(map(lambda x: "relationships(p" + str(x[0]) + ")", enumerate(key_names)))
     )
-    return f"match {paths_string} return *, {r_string}"
+    return f"match {paths_string} {condition_string} return *, {r_string}"
 
 
 def format_easy_query_author_disagree(easy_author_id):
@@ -554,6 +555,11 @@ def easy_query_path():
 
 st.title('GrammarXivグラフ検索ツール')
 
+get_relation_completion = st.button("補完候補をアップデート")
+
+if get_relation_completion:
+    subprocess.run("ruby ./read_entries.rb", shell=True, text=True)
+
 (
     easy_query_tab_phen_hyp,
     easy_query_tab_author,
@@ -574,9 +580,5 @@ with easy_query_tab_path:
     easy_query_path()
 
 
-get_relation_completion = st.button("補完候補をアップデート")
-
-if get_relation_completion:
-    subprocess.run("ruby ./read_entries.rb", shell=True, text=True)
 
 
