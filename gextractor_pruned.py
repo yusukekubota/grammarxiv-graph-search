@@ -249,16 +249,20 @@ def format_easy_query(key_names, target_node_type, length):
             + " -[*.."
             + str(length)
             + "] - "
-            + format_node(x[1])
-            + f'WHERE ALL(r IN relationships(p{str(x[0])}) WHERE (r.variant <> "REFER_TO") AND (r.variant <> "BADGED_VERIFIED"))',
+            + format_node(x[1]),
             enumerate(key_names),
         )
     )
     paths_string = ", ".join(paths)
+
+    cond_string = "AND ".join(
+        list(map(lambda x: f'ALL(r IN relationships(p{str(x[0])}) WHERE (r.variant <> "REFER_TO") AND (r.variant <> "BADGED_VERIFIED"))', enumerate(key_names)))
+    )
+    
     r_string = ", ".join(
         list(map(lambda x: "relationships(p" + str(x[0]) + ")", enumerate(key_names)))
     )
-    return f"match {paths_string} return *, {r_string}"
+    return f"match {paths_string} where {cond_string} return *, {r_string}"
 
 
 def format_easy_query_author_disagree(easy_author_id):
