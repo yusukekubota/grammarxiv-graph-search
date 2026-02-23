@@ -268,17 +268,33 @@ def format_easy_query(key_names, target_node_type, length):
 
 
 def format_easy_query_author_disagree(easy_author_name):
-    return f"""match p = {format_node_alt(easy_author_name, "author_name")}-[:author_of]->{format_node("publication")}-[:true]->{format_node("hypothesis")}<-[:false]-{format_node("publication")}  return *, relationships(p)
+    pivot = format_node_alt(easy_author_name, "author_name")
+    pub = format_node("publication")
+    hyp = format_node("hypothesis")
+    return f"""match p = {pivot}-[:author_of]->{pub}
+  -[:true]->{hyp}<-[:false]-{pub}
+return *, relationships(p)
 union
-match p = {format_node_alt(easy_author_name, "author_name")}-[:author_of]->{format_node("publication")}-[:false]->{format_node("hypothesis")}<-[:true]-{format_node("publication")}  return *, relationships(p)"""
+match p = {pivot}-[:author_of]->{pub}
+  -[:false]->{hyp}<-[:true]-{pub}
+return *, relationships(p)"""
 
 
 def format_easy_query_author_agree(easy_author_name):
-    return f"""match p = {format_node_alt(easy_author_name, "author_name")}-[:author_of]->{format_node("publication")}-[:true]->{format_node("hypothesis")}<-[:true]-{format_node("publication")}  return *, relationships(p)"""
-
+    pivot = format_node_alt(easy_author_name, "author_name")
+    pub = format_node("publication")
+    hyp = format_node("hypothesis")
+    return f"""match p = {pivot}-[:author_of]->{pub}
+  -[:true]->{hyp}<-[:true]-{pub}
+return *, relationships(p)"""
 
 def format_easy_query_author_same_topic(easy_author_name):
-    return f"""match p = {format_node_alt(easy_author_name, "author_name")}-[:author_of]->{format_node("publication")}-[:related_topic]->{format_node("topic")}<-[:related_topic]-{format_node("publication")}  return *, relationships(p)"""
+    return f"""MATCH p = 
+  {format_node_alt(easy_author_name, "author_name")}-[:author_of]->(:publication)
+  -[:related_topic]->(t)
+  <-[:related_topic]-(:publication)
+WHERE t.sub_type IN ["VOCABULARY", "KEYWORD"]
+RETURN p, relationships(p)"""
 
 
 def add_header(s: str):
