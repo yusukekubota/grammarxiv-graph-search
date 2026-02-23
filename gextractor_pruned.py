@@ -476,7 +476,7 @@ def easy_query_author():
     easy_query_author = "\nunion\n".join(st.session_state.easy_query_author_list)
     
     st.text(easy_query_author)
-    easy_query_author_edited = st.text_area(label="クエリ:", value=easy_query_author, height=150)
+    easy_query_author_edited = st.text_area(label="クエリ:", value=easy_query_author, height=150, key="easy_author_text_area")
 
     st.link_button("グラフ検索 (本システム)", neovis_url + quote(easy_query_author_edited))
 
