@@ -242,29 +242,20 @@ def format_query_chain_alt(labels_list):
 
 
 def format_easy_query(key_names, target_node_type, length):
-    paths = list(
-        map(
-            lambda x: "p"
-            + str(x[0])
-            + "= "
-            + format_node2(target_node_type, "a")
-            + " -[*.."
-            + str(length)
-            + "] - "
-            + format_node(x[1]),
-            enumerate(key_names),
-        )
-    )
+    paths = list(map(lambda x: f'p{str(x[0])} = {format_node2(target_node_type, "a")} -[*..{str(length)}] - {format_node(x[1])}', enumerate(key_names)))
+
     paths_string = ", ".join(paths)
 
-    cond_string = " AND ".join(
-        list(map(lambda x: f'ALL(r IN relationships(p{str(x[0])}) WHERE (r.variant <> "REFER_TO") AND (r.variant <> "BADGED_VERIFIED"))', enumerate(key_names)))
+    cond_string = "\nAND\n".join(
+        list(map(lambda x: f'''ALL(r IN relationships(p{str(x[0])}) WHERE (r.variant <> "REFER_TO") AND (r.variant <> "BADGED_VERIFIED"))
+AND
+ALL(n IN nodes(p{str(x[0])}) WHERE n.sub_type IS NULL OR n.sub_type <> "LANGUAGE")''', enumerate(key_names)))
     )
     
-    r_string = ", ".join(
-        list(map(lambda x: "relationships(p" + str(x[0]) + ")", enumerate(key_names)))
-    )
-    return f"match {paths_string} where {cond_string} return *, {r_string}"
+    r_string = ", ".join(list(map(lambda x: f"relationships(p{str(x[0])})", enumerate(key_names))))
+    return f"""match {paths_string}
+where {cond_string}
+return *, {r_string}"""
 
 
 def format_easy_query_author_disagree(easy_author_name):
