@@ -278,7 +278,7 @@ def format_easy_query_author_agree(easy_author_name):
 
 
 def format_easy_query_author_same_topic(easy_author_name):
-    return f"""match p = {format_node_alt(easy_author_name, "author_name")}-[:author_of]->{format_node("publication")}-[:related_topic]->{format_node("keyword")}<-[:related_topic]-{format_node("publication")}  return *, relationships(p)"""
+    return f"""match p = {format_node_alt(easy_author_name, "author_name")}-[:author_of]->{format_node("publication")}-[:related_topic]->{format_node("topic")}<-[:related_topic]-{format_node("publication")}  return *, relationships(p)"""
 
 
 def add_header(s: str):
