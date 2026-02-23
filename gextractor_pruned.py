@@ -213,6 +213,8 @@ def format_node(label: str) -> str:
     else:
         return f'({{name: "{label}"}})'
 
+def format_node_alt(label: str, var: str) -> str:
+    return f'({{{var}: "{label}"}})'
 
 def format_node2(label: str, var: str) -> str:
     return f"({var}: {label})"
@@ -255,7 +257,7 @@ def format_easy_query(key_names, target_node_type, length):
     )
     paths_string = ", ".join(paths)
 
-    cond_string = "AND ".join(
+    cond_string = " AND ".join(
         list(map(lambda x: f'ALL(r IN relationships(p{str(x[0])}) WHERE (r.variant <> "REFER_TO") AND (r.variant <> "BADGED_VERIFIED"))', enumerate(key_names)))
     )
     
@@ -265,18 +267,18 @@ def format_easy_query(key_names, target_node_type, length):
     return f"match {paths_string} where {cond_string} return *, {r_string}"
 
 
-def format_easy_query_author_disagree(easy_author_id):
-    return f"""match p = {format_node(easy_author_id)}-[:author_of]->{format_node("publication")}-[:true]->{format_node("hypothesis")}<-[:false]-{format_node("publication")}  return *, relationships(p)
+def format_easy_query_author_disagree(easy_author_name):
+    return f"""match p = {format_node_alt(easy_author_name, "author_name")}-[:author_of]->{format_node("publication")}-[:true]->{format_node("hypothesis")}<-[:false]-{format_node("publication")}  return *, relationships(p)
 union
-match p = {format_node(easy_author_id)}-[:author_of]->{format_node("publication")}-[:false]->{format_node("hypothesis")}<-[:true]-{format_node("publication")}  return *, relationships(p)"""
+match p = {format_node_alt(easy_author_name, "author_name")}-[:author_of]->{format_node("publication")}-[:false]->{format_node("hypothesis")}<-[:true]-{format_node("publication")}  return *, relationships(p)"""
 
 
-def format_easy_query_author_agree(easy_author_id):
-    return f"""match p = {format_node(easy_author_id)}-[:author_of]->{format_node("publication")}-[:true]->{format_node("hypothesis")}<-[:true]-{format_node("publication")}  return *, relationships(p)"""
+def format_easy_query_author_agree(easy_author_name):
+    return f"""match p = {format_node_alt(easy_author_name, "author_name")}-[:author_of]->{format_node("publication")}-[:true]->{format_node("hypothesis")}<-[:true]-{format_node("publication")}  return *, relationships(p)"""
 
 
-def format_easy_query_author_same_topic(easy_author_id):
-    return f"""match p = {format_node(easy_author_id)}-[:author_of]->{format_node("publication")}-[:related_topic]->{format_node("keyword")}<-[:related_topic]-{format_node("publication")}  return *, relationships(p)"""
+def format_easy_query_author_same_topic(easy_author_name):
+    return f"""match p = {format_node_alt(easy_author_name, "author_name")}-[:author_of]->{format_node("publication")}-[:related_topic]->{format_node("keyword")}<-[:related_topic]-{format_node("publication")}  return *, relationships(p)"""
 
 
 def add_header(s: str):
@@ -445,30 +447,6 @@ def easy_query_author():
     easy_author_name = easy_author_name_id[0]
     easy_author_id = easy_author_name_id[1]
 
-    if st.button("直近5件の論文を表示 (Semantic Scholar)"):
-        get_author_info(easy_author_id)
-
-    with st.expander("周辺ノード (1ホップ)"):
-        graph_search_author_incoming_rels_df = st.session_state.rels_df[
-            st.session_state.rels_df["to"] == easy_author_id
-        ]
-        graph_search_author_outgoing_rels_df = st.session_state.rels_df[
-            st.session_state.rels_df["from"] == easy_author_id
-        ]
-        gsearch_tab1, gsearch_tab2 = st.tabs(["グラフ表示", "リスト表示"])
-        with gsearch_tab1:
-            draw_preview_graph(
-                easy_author_id,
-                graph_search_author_incoming_rels_df,
-                graph_search_author_outgoing_rels_df,
-                "circo",
-            )
-        with gsearch_tab2:
-            st.write("incoming:")
-            st.write(graph_search_author_incoming_rels_df)
-            st.write("outgoing:")
-            st.write(graph_search_author_outgoing_rels_df)
-
     easy_author_option = st.selectbox(
         "選択肢:",
         [
@@ -485,18 +463,20 @@ def easy_query_author():
     with cols_easy_buttons[0]:
         if st.button("クエリ追加", key="easy_author_add"):
             if easy_author_option == "1":
-                new_easy_query = format_easy_query_author_disagree(easy_author_id)
+                new_easy_query = format_easy_query_author_disagree(easy_author_name)
             elif easy_author_option == "2":
-                new_easy_query = format_easy_query_author_agree(easy_author_id)
+                new_easy_query = format_easy_query_author_agree(easy_author_name)
             else:
-                new_easy_query = format_easy_query_author_same_topic(easy_author_id)
+                new_easy_query = format_easy_query_author_same_topic(easy_author_name)
             st.session_state.easy_query_author_list = [new_easy_query] + st.session_state.easy_query_author_list
     with cols_easy_buttons[1]:
         if st.button("クエリ消去", key="easy_author_delete"):
             st.session_state.easy_query_author_list = []
 
     easy_query_author = "\nunion\n".join(st.session_state.easy_query_author_list)
-    easy_query_author_edited = st.text_area("クエリ:", easy_query_author, height=150, key="easy_author_text_area")
+    
+    #st.text(easy_query_author)
+    easy_query_author_edited = st.text_area(label="クエリ:", value=easy_query_author, height=150, key="easy_author_text_area")
 
     st.link_button("グラフ検索 (本システム)", neovis_url + quote(easy_query_author_edited))
 
