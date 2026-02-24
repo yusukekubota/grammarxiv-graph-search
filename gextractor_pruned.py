@@ -168,16 +168,16 @@ if "entries_df" not in st.session_state:
     st.session_state.entries_df = load_entries()
 
 author_entry_name_list = (
-    st.session_state.entries_df[st.session_state.entries_df["type"] == "author"].name.tolist()
+    st.session_state.entries_df[st.session_state.entries_df["type"] == "author"].label.tolist()
 )
 topic_entry_name_list = (
-    st.session_state.entries_df[st.session_state.entries_df["type"] == "topic"].name.tolist()
+    st.session_state.entries_df[st.session_state.entries_df["type"] == "topic"].label.tolist()
 )
 hypothesis_entry_name_list = (
-    st.session_state.entries_df[st.session_state.entries_df["type"] == "hypothesis"].name.tolist()
+    st.session_state.entries_df[st.session_state.entries_df["type"] == "hypothesis"].label.tolist()
 )
 framework_entry_name_list = (
-    st.session_state.entries_df[st.session_state.entries_df["type"] == "framework"].name.tolist()
+    st.session_state.entries_df[st.session_state.entries_df["type"] == "framework"].label.tolist()
 )
 
 
@@ -211,7 +211,7 @@ def format_node(label: str) -> str:
     elif label == "ANY":
         return "()"
     else:
-        return f'({{name: "{label}"}})'
+        return f'({{label: "{label}"}})'
 
 def format_node_alt(label: str, var: str) -> str:
     return f'({{{var}: "{label}"}})'
@@ -259,7 +259,7 @@ return *, {r_string}"""
 
 
 def format_easy_query_author_disagree(easy_author_name):
-    pivot = format_node_alt(easy_author_name, "author_name")
+    pivot = format_node_alt(easy_author_name, "name")
     pub = format_node("publication")
     hyp = format_node("hypothesis")
     return f"""match p = {pivot}-[:author_of]->{pub}
@@ -272,7 +272,7 @@ return *, relationships(p)"""
 
 
 def format_easy_query_author_agree(easy_author_name):
-    pivot = format_node_alt(easy_author_name, "author_name")
+    pivot = format_node_alt(easy_author_name, "name")
     pub = format_node("publication")
     hyp = format_node("hypothesis")
     return f"""match p = {pivot}-[:author_of]->{pub}
@@ -281,7 +281,7 @@ return *, relationships(p)"""
 
 def format_easy_query_author_same_topic(easy_author_name):
     return f"""MATCH p = 
-  {format_node_alt(easy_author_name, "author_name")}-[:author_of]->(:publication)
+  {format_node_alt(easy_author_name, "name")}-[:author_of]->(:publication)
   -[:related_topic]->(t)
   <-[:related_topic]-(:publication)
 WHERE t.sub_type IN ["VOCABULARY", "KEYWORD"]
@@ -346,17 +346,17 @@ def get_author_info(author_id: str):
         st.write(f" {paper.replace('SS ', '・')}")
 
 
-def next_types(name: str):
-    outgoing_rel_list = st.session_state.rels_w_type_df[st.session_state.rels_df["from"] == name]
-    incoming_rel_list = st.session_state.rels_w_type_df[st.session_state.rels_df["to"] == name]
+def next_types(label: str):
+    outgoing_rel_list = st.session_state.rels_w_type_df[st.session_state.rels_df["from"] == label]
+    incoming_rel_list = st.session_state.rels_w_type_df[st.session_state.rels_df["to"] == label]
     outgoing_types = outgoing_rel_list["to_type"].to_list()
     incoming_types = incoming_rel_list["from_type"].to_list()
     return outgoing_types + incoming_types
 
 
-def next_relations(name: str):
-    outgoing_rel_list = st.session_state.rels_w_type_df[st.session_state.rels_df["from"] == name]
-    incoming_rel_list = st.session_state.rels_w_type_df[st.session_state.rels_df["to"] == name]
+def next_relations(label: str):
+    outgoing_rel_list = st.session_state.rels_w_type_df[st.session_state.rels_df["from"] == label]
+    incoming_rel_list = st.session_state.rels_w_type_df[st.session_state.rels_df["to"] == label]
     outgoing_rel_types = outgoing_rel_list["type"].to_list()
     incoming_rel_types = incoming_rel_list["type"].to_list()
     return outgoing_rel_types + incoming_rel_types
@@ -370,7 +370,7 @@ def get_target_info(target: str) -> str:
             target_type = "author"
         else:
             target_type = (
-                st.session_state.entries_df[st.session_state.entries_df["name"] == target]
+                st.session_state.entries_df[st.session_state.entries_df["label"] == target]
                 .iloc[0]["type"]
             )
     else:
