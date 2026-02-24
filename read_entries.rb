@@ -96,14 +96,14 @@ Author_entries = AuthorNameSheetURL.read_GSheet2os.map do |x|
     []
   end
   first_id = ids.is_a?(Array) ? ids.first : ids
-  x.name = "#{x.name}, #{first_id}" if first_id && first_id.to_s != ""
+  x.label = "#{x.label}, #{first_id}" if first_id && first_id.to_s != ""
 
   x
 end
 
 All_entries = Hyp_entries + Framework_entries + Topic_entries + Pub_entries + Author_entries + Data_entries 
 
-id_name_hash = All_entries.map { |x| [x.id, x.name] }.to_h
+id_name_hash = All_entries.map { |x| [x.id, x.label] }.to_h
 
 Rel_entries = RelSheetURL.read_GSheet2os.map do |x|
   x.from = id_name_hash[x.fromEntryId]
@@ -114,7 +114,7 @@ Rel_entries = RelSheetURL.read_GSheet2os.map do |x|
 end
 
 
-All_entries.map(&:name).uniq.join("\n").writeToOutFile("./result/entry_names.txt")
-All_entries.os_array2tsv(%w[name type sub_type entry summary]).writeToOutFile("./result/entries.tsv")
-Rel_entries.os_array2tsv(%w[id name type subType variant fromEntryId toEntryId from to]).writeToOutFile("./result/rels.tsv")
+All_entries.map(&:label).uniq.join("\n").writeToOutFile("./result/entry_names.txt")
+All_entries.os_array2tsv(%w[label type sub_type entry summary]).writeToOutFile("./result/entries.tsv")
+Rel_entries.os_array2tsv(%w[id label type subType variant fromEntryId toEntryId from to]).writeToOutFile("./result/rels.tsv")
 Rel_entries.os_array2tsv(%w[from from_type type to to_type]).writeToOutFile("./result/rels_w_type.tsv")
